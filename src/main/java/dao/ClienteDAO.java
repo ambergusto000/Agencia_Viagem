@@ -1,4 +1,4 @@
-package DAO;
+package dao;
 
 import model.Cliente;
 import util.DB;
