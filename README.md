@@ -19,3 +19,4 @@ Guia:
 
 - Abrir o MySQL com o código colocado no projeto;
 - No class DB na pasta "util", é necessário alterar a senha da seguinte linha  private static final String PASS = "senha"; para a senha do banco do MySQL;
+- Para funcionar é necessário adicionar o MySQLconnector.jar como livraria externa, indo em project structures -> modules -> dependencies -> clica no "+" -> seleciona o MySQL-connector
