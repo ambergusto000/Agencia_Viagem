@@ -6,15 +6,21 @@ import dao.ServicoDAO;
 import model.Cliente;
 import model.PacoteViagem;
 import model.ServicoAdicional;
-import util.DB; // Import para obter a conexão
+import util.DB;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class TelaVisualizacaoDados extends JFrame {
     private DefaultTableModel modelClientes;
@@ -32,9 +38,9 @@ public class TelaVisualizacaoDados extends JFrame {
 
         JTabbedPane tabbedPane = new JTabbedPane();
 
-        // Clientes com pacotes
+        // Clientes com pacotes e serviços
         modelClientes = new DefaultTableModel(
-                new String[]{"ID", "Nome", "Tipo", "Telefone", "Email", "Pacotes"}, 0);
+                new String[]{"ID", "Nome", "Tipo", "Telefone", "Email", "Pacotes e Serviços"}, 0);
         tabelaClientes = new JTable(modelClientes);
         JButton btnExcluirCliente = new JButton("Excluir Cliente Selecionado");
         btnExcluirCliente.addActionListener(e -> excluirClienteSelecionado());
@@ -72,8 +78,8 @@ public class TelaVisualizacaoDados extends JFrame {
         JButton btnContratarServico = new JButton("Contratar Serviço");
         btnContratarServico.addActionListener(e -> {
             try {
-                Connection conn = DB.getConnection(); // Obtém a conexão
-                new TelaContratarServico(conn); // Abre a tela de contratar serviço
+                Connection conn = DB.getConnection();
+                new TelaContratarServico(conn);
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(this, "Erro ao abrir tela de contratação: " + ex.getMessage());
             }
@@ -93,19 +99,47 @@ public class TelaVisualizacaoDados extends JFrame {
 
     private void carregarClientes() {
         modelClientes.setRowCount(0); // Limpa a tabela
-        try {
+        try (Connection conn = DB.getConnection()) {
             ClienteDAO daoC = new ClienteDAO();
             Map<Cliente, List<String>> dados = daoC.listarClientesComPacotes();
-            for (Map.Entry<Cliente, List<String>> e : dados.entrySet()) {
-                Cliente c = e.getKey();
-                String pacotes = String.join(", ", e.getValue());
+            Map<Integer, Set<String>> servicosPorCliente = getServicosPorCliente(conn); // Usando Set para evitar duplicatas
+
+            for (Map.Entry<Cliente, List<String>> entry : dados.entrySet()) {
+                Cliente c = entry.getKey();
+                List<String> pacotes = entry.getValue();
+                Set<String> servicos = servicosPorCliente.getOrDefault(c.getId(), new HashSet<>());
+
+                // Convertendo Set para List para usar String.join
+                List<String> servicosList = new ArrayList<>(servicos);
+                String pacotesStr = String.join(", ", pacotes);
+                String servicosStr = String.join(", ", servicosList);
+                String pacotesEServicos = (pacotesStr.isEmpty() ? "" : pacotesStr + (servicosStr.isEmpty() ? "" : ", ")) + servicosStr;
+
                 modelClientes.addRow(new Object[]{
-                        c.getId(), c.getNome(), c.getTipo(), c.getTelefone(), c.getEmail(), pacotes
+                        c.getId(), c.getNome(), c.getTipo(), c.getTelefone(), c.getEmail(), pacotesEServicos
                 });
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Erro ao carregar clientes: " + ex.getMessage());
         }
+    }
+
+    private Map<Integer, Set<String>> getServicosPorCliente(Connection conn) throws SQLException {
+        Map<Integer, Set<String>> servicosPorCliente = new HashMap<>();
+        String sql = "SELECT DISTINCT c.id AS cliente_id, s.nome AS servico " +
+                "FROM clientes c " +
+                "JOIN contratos co ON c.id = co.cliente_id " +
+                "JOIN contrato_servico cs ON co.id = cs.contrato_id " +
+                "JOIN servicos s ON cs.servico_id = s.id";
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                int clienteId = rs.getInt("cliente_id");
+                String servico = rs.getString("servico");
+                servicosPorCliente.computeIfAbsent(clienteId, k -> new HashSet<>()).add(servico);
+            }
+        }
+        return servicosPorCliente;
     }
 
     private void carregarPacotes() {
