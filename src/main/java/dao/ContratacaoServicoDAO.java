@@ -1,4 +1,6 @@
-package DAO;
+package dao;
+
+import model.ContratacaoServico;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -13,12 +15,10 @@ public class ContratacaoServicoDAO {
     }
 
     public void contratarServico(ContratacaoServico contratacao) throws SQLException {
-        String sql = "INSERT INTO contratacao_servico (cliente_id, pacote_id, servico_id, data_contratacao) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO contrato_servico (contrato_id, servico_id) VALUES (?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setInt(1, contratacao.getClienteId());
-            stmt.setInt(2, contratacao.getPacoteId());
-            stmt.setInt(3, contratacao.getServicoId());
-            stmt.setDate(4, Date.valueOf(contratacao.getDataContratacao()));
+            stmt.setInt(1, contratacao.getContratoId());
+            stmt.setInt(2, contratacao.getServicoId());
             stmt.executeUpdate();
         }
     }

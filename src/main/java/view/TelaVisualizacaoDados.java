@@ -6,11 +6,13 @@ import dao.ServicoDAO;
 import model.Cliente;
 import model.PacoteViagem;
 import model.ServicoAdicional;
+import util.DB; // Import para obter a conexão
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.sql.SQLException; // Import adicionado
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -66,7 +68,26 @@ public class TelaVisualizacaoDados extends JFrame {
         carregarServicos();
         tabbedPane.addTab("Serviços", painelServicos);
 
-        add(tabbedPane);
+        // Adicionando botão para contratar serviços
+        JButton btnContratarServico = new JButton("Contratar Serviço");
+        btnContratarServico.addActionListener(e -> {
+            try {
+                Connection conn = DB.getConnection(); // Obtém a conexão
+                new TelaContratarServico(conn); // Abre a tela de contratar serviço
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Erro ao abrir tela de contratação: " + ex.getMessage());
+            }
+        });
+
+        // Painel para os botões globais
+        JPanel painelBotoes = new JPanel();
+        painelBotoes.add(btnContratarServico);
+
+        // Adiciona o painel de botões ao layout
+        setLayout(new BorderLayout());
+        add(tabbedPane, BorderLayout.CENTER);
+        add(painelBotoes, BorderLayout.NORTH);
+
         setVisible(true);
     }
 

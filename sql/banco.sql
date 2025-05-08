@@ -31,22 +31,22 @@ CREATE TABLE servicos (
                           preco DECIMAL(10,2)
 );
 
--- Criando a tabela contratos
+-- Criando a tabela contratos (apenas uma vez, com ON DELETE CASCADE)
 CREATE TABLE contratos (
                            id INT AUTO_INCREMENT PRIMARY KEY,
                            cliente_id INT,
                            pacote_id INT,
-                           FOREIGN KEY(cliente_id) REFERENCES clientes(id),
-                           FOREIGN KEY(pacote_id) REFERENCES pacotes(id)
+                           FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE,
+                           FOREIGN KEY (pacote_id) REFERENCES pacotes(id) ON DELETE CASCADE
 );
 
--- Criando a tabela contrato_servico
+-- Criando a tabela contrato_servico (com ON DELETE CASCADE)
 CREATE TABLE contrato_servico (
                                   id INT AUTO_INCREMENT PRIMARY KEY,
                                   contrato_id INT,
                                   servico_id INT,
-                                  FOREIGN KEY(contrato_id) REFERENCES contratos(id),
-                                  FOREIGN KEY(servico_id) REFERENCES servicos(id)
+                                  FOREIGN KEY (contrato_id) REFERENCES contratos(id) ON DELETE CASCADE,
+                                  FOREIGN KEY (servico_id) REFERENCES servicos(id) ON DELETE CASCADE
 );
 
 -- Inserindo dados de clientes
@@ -69,18 +69,15 @@ VALUES
     ('Passeio de barco', 'Passeio turístico pelos rios locais', 150.00),
     ('Aluguel de Carro', 'Carro disponível por toda a estadia', 500.00);
 
+-- Inserindo contratos (relacionando clientes e pacotes)
+INSERT INTO contratos (cliente_id, pacote_id)
+VALUES
+    (1, 1), -- João Silva contratando Aventura Amazônica
+    (2, 2); -- Anna Müller contratando Luxo em Paris
 
-
-
-
-CREATE TABLE contratacao_servico (
-                                     id INT AUTO_INCREMENT PRIMARY KEY,
-                                     cliente_id INT NOT NULL,
-                                     pacote_id INT NOT NULL,
-                                     servico_id INT NOT NULL,
-                                     data_contratacao DATE NOT NULL,
-                                     FOREIGN KEY (cliente_id) REFERENCES cliente(id),
-                                     FOREIGN KEY (pacote_id) REFERENCES pacote(id),
-                                     FOREIGN KEY (servico_id) REFERENCES servico(id)
-);
-
+-- Inserindo serviços associados aos contratos
+INSERT INTO contrato_servico (contrato_id, servico_id)
+VALUES
+    (1, 1), -- Contrato 1 (João Silva) com Translado
+    (1, 2), -- Contrato 1 (João Silva) com Passeio de barco
+    (2, 3); -- Contrato 2 (Anna Müller) com Aluguel de Carro
