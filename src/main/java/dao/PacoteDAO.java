@@ -54,7 +54,7 @@ public class PacoteDAO {
         return lista;
     }
 
-    // Nova função: Busca por ID
+    //Busca por ID
     public PacoteViagem buscarPorId(int id) throws SQLException {
         String sql = "SELECT * FROM pacotes WHERE id = ?";
         try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -74,7 +74,7 @@ public class PacoteDAO {
         }
     }
 
-    // Nova função: Exclusão por ID
+    //Exclusão por ID
     public void excluir(int id) throws SQLException {
         String sql = "DELETE FROM pacotes WHERE id = ?";
         try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {

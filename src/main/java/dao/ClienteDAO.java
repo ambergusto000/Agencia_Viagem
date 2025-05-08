@@ -82,7 +82,7 @@ public class ClienteDAO {
         return lista;
     }
 
-    // Nova função: Busca por ID
+    //Busca por ID
     public Cliente buscarPorId(int id) throws SQLException {
         String sql = "SELECT * FROM clientes WHERE id = ?";
         try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -103,7 +103,7 @@ public class ClienteDAO {
         }
     }
 
-    // Nova função: Exclusão por ID
+    //Exclusão por ID
     public void excluir(int id) throws SQLException {
         String sql = "DELETE FROM clientes WHERE id = ?";
         try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {

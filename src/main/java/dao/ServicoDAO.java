@@ -66,7 +66,7 @@ public class ServicoDAO {
         }
     }
 
-    // Nova função: Exclusão por ID
+    //Exclusão por ID
     public void excluir(int id) throws SQLException {
         String sql = "DELETE FROM servicos WHERE id = ?";
         try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
