@@ -1,4 +1,7 @@
-package model;
+package view;
+
+import model.Cliente;
+import model.ContratacaoServico;
 
 import javax.swing.*;
 import java.awt.*;

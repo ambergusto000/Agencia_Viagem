@@ -68,3 +68,19 @@ VALUES
     ('Translado Aeroporto-Hotel', 'Serviço de translado ida e volta', 200.00),
     ('Passeio de barco', 'Passeio turístico pelos rios locais', 150.00),
     ('Aluguel de Carro', 'Carro disponível por toda a estadia', 500.00);
+
+
+
+
+
+CREATE TABLE contratacao_servico (
+                                     id INT AUTO_INCREMENT PRIMARY KEY,
+                                     cliente_id INT NOT NULL,
+                                     pacote_id INT NOT NULL,
+                                     servico_id INT NOT NULL,
+                                     data_contratacao DATE NOT NULL,
+                                     FOREIGN KEY (cliente_id) REFERENCES cliente(id),
+                                     FOREIGN KEY (pacote_id) REFERENCES pacote(id),
+                                     FOREIGN KEY (servico_id) REFERENCES servico(id)
+);
+
