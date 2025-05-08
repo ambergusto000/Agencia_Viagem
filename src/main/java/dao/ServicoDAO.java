@@ -48,7 +48,7 @@ public class ServicoDAO {
         return lista;
     }
 
-    // Nova função: Busca por ID
+    // Busca por ID
     public ServicoAdicional buscarPorId(int id) throws SQLException {
         String sql = "SELECT * FROM servicos WHERE id = ?";
         try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -66,7 +66,7 @@ public class ServicoDAO {
         }
     }
 
-    //Exclusão por ID
+    // Exclusão por ID
     public void excluir(int id) throws SQLException {
         String sql = "DELETE FROM servicos WHERE id = ?";
         try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
