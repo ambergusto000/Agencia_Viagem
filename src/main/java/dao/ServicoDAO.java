@@ -47,4 +47,31 @@ public class ServicoDAO {
         }
         return lista;
     }
+
+    // Nova função: Busca por ID
+    public ServicoAdicional buscarPorId(int id) throws SQLException {
+        String sql = "SELECT * FROM servicos WHERE id = ?";
+        try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                ServicoAdicional s = new ServicoAdicional();
+                s.setId(rs.getInt("id"));
+                s.setNome(rs.getString("nome"));
+                s.setDescricao(rs.getString("descricao"));
+                s.setPreco(rs.getDouble("preco"));
+                return s;
+            }
+            return null;
+        }
+    }
+
+    // Nova função: Exclusão por ID
+    public void excluir(int id) throws SQLException {
+        String sql = "DELETE FROM servicos WHERE id = ?";
+        try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        }
+    }
 }

@@ -53,4 +53,33 @@ public class PacoteDAO {
         }
         return lista;
     }
+
+    // Nova função: Busca por ID
+    public PacoteViagem buscarPorId(int id) throws SQLException {
+        String sql = "SELECT * FROM pacotes WHERE id = ?";
+        try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                PacoteViagem p = new PacoteViagem();
+                p.setId(rs.getInt("id"));
+                p.setNome(rs.getString("nome"));
+                p.setDestino(rs.getString("destino"));
+                p.setDuracao(rs.getInt("duracao"));
+                p.setPreco(rs.getDouble("preco"));
+                p.setTipo(rs.getString("tipo"));
+                return p;
+            }
+            return null;
+        }
+    }
+
+    // Nova função: Exclusão por ID
+    public void excluir(int id) throws SQLException {
+        String sql = "DELETE FROM pacotes WHERE id = ?";
+        try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        }
+    }
 }

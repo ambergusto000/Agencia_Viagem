@@ -13,23 +13,18 @@ public class ClienteDAO {
         try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, c.getNome());
             stmt.setString(2, c.getTipo());
-
-            // CPF e Passaporte podem ser nulos
             if (c.getCpf() == null || c.getCpf().isBlank()) {
                 stmt.setNull(3, Types.VARCHAR);
             } else {
                 stmt.setString(3, c.getCpf());
             }
-
             if (c.getPassaporte() == null || c.getPassaporte().isBlank()) {
                 stmt.setNull(4, Types.VARCHAR);
             } else {
                 stmt.setString(4, c.getPassaporte());
             }
-
             stmt.setString(5, c.getTelefone());
             stmt.setString(6, c.getEmail());
-
             stmt.executeUpdate();
         }
     }
@@ -39,10 +34,8 @@ public class ClienteDAO {
                 "FROM clientes c " +
                 "LEFT JOIN contratos ct ON c.id = ct.cliente_id " +
                 "LEFT JOIN pacotes p ON ct.pacote_id = p.id";
-
         Map<Integer, Cliente> clientesMap = new HashMap<>();
         Map<Cliente, List<String>> resultado = new HashMap<>();
-
         try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
@@ -72,7 +65,6 @@ public class ClienteDAO {
     public List<Cliente> listarTodos() throws SQLException {
         List<Cliente> lista = new ArrayList<>();
         String sql = "SELECT * FROM clientes";
-
         try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
@@ -87,7 +79,36 @@ public class ClienteDAO {
                 lista.add(c);
             }
         }
-
         return lista;
+    }
+
+    // Nova função: Busca por ID
+    public Cliente buscarPorId(int id) throws SQLException {
+        String sql = "SELECT * FROM clientes WHERE id = ?";
+        try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                Cliente c = new Cliente();
+                c.setId(rs.getInt("id"));
+                c.setNome(rs.getString("nome"));
+                c.setTipo(rs.getString("tipo"));
+                c.setCpf(rs.getString("cpf"));
+                c.setPassaporte(rs.getString("passaporte"));
+                c.setTelefone(rs.getString("telefone"));
+                c.setEmail(rs.getString("email"));
+                return c;
+            }
+            return null;
+        }
+    }
+
+    // Nova função: Exclusão por ID
+    public void excluir(int id) throws SQLException {
+        String sql = "DELETE FROM clientes WHERE id = ?";
+        try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        }
     }
 }
