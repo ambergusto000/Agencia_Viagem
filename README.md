@@ -54,7 +54,7 @@ Rodrigo Passos - 22405821
 ### 1. Configurar o Banco
 
 - Crie o banco `agencia_viagens`
-- Execute o script `banco.sql` na pasta `/sql/`
+- Execute o script `banco.sql` da pasta `/sql/` no MySQL
 
 ### 2. Ajustar credenciais
 
