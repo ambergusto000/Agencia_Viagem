@@ -1,27 +1,57 @@
-<h1 align="center"> Trabalho - Linguagem e Técnicas de Programação II  </h1>
+# 🌍 Sistema de Agência de Viagens 
 
-Integrantes:
+Este projeto implementa um sistema completo para gerenciamento de uma agência de viagens, com interface gráfica desenvolvida em **Java Swing** e integração com banco de dados **MySQL**
 
-Augusto Amberget Rosa Ramos - 22401009
+---
 
-Paulo Sérgio Reis Neto - 22409324
+## 🎯 Funcionalidades
 
-Rodrigo Passos Meira - 22405821
+✔️ Cadastro, listagem, busca e exclusão de:
+- Clientes (nacionais e estrangeiros)
+- Pacotes de viagem
+- Serviços adicionais
 
-----------------------
-Objetivo: 
+✔️ Relacionamentos:
+- Cliente → múltiplos pacotes
+- Pacote → múltiplos serviços adicionais
 
-Desenvolver um sistema em Java com banco de dados MySQL para gerenciar o cadastro de clientes, pacotes de viagens e serviços adicionais em uma agência de turismo. O sistema permite que clientes nacionais e estrangeiros contratem pacotes com diferentes características e serviços opcionais, mantendo o relacionamento entre eles.
+✔️ Consultas:
+- Pacotes contratados por cliente
+- Clientes que contrataram determinado pacote
 
+✔️ Validações:
+- CPF e passaporte válidos
+- E-mail com formato correto
+- Campos obrigatórios
+- Regra de negócio: não excluir pacote com vínculo
 
-----------------------
-Os códigos estão no src/Main/Java e no sql.
-----------------------
+✔️ Interface:
+- Menu principal com acesso a todas as telas
+- Layout limpo, intuitivo e funcional
 
+---
 
-Guia: 
+## 🛠 Tecnologias Utilizadas
 
-- Abrir o MySQL com o código colocado no projeto;
-- No class DB na pasta "util", é necessário alterar a senha da seguinte linha  private static final String PASS = "senha"; para a senha do banco do MySQL;
-- Para funcionar é necessário adicionar o MySQLconnector.jar como livraria externa, indo em project structures -> modules -> dependencies -> clica no "+" -> seleciona o MySQL-connector;
-- Executar o código no Main;
+- Java 11+
+- Java Swing (interface gráfica)
+- MySQL (banco de dados)
+- JDBC (conexão com o banco)
+- IDE utilizada: IntelliJ
+
+---
+
+## 💡 Como Executar
+
+### 1. Configurar o Banco
+
+- Crie o banco `agencia_viagens`
+- Execute o script `banco.sql` na pasta `/sql/`
+
+### 2. Ajustar credenciais
+
+Edite a classe `DB.java` com suas informações:
+
+```java
+private static final String USER = "seu_usuario";
+private static final String PASSWORD = "sua_senha";
