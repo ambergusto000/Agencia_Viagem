@@ -50,6 +50,21 @@ Este projeto implementa um sistema completo para gerenciamento de uma agência d
 
 ### 2. Ajustar credenciais
 
+Adicionar o Driver JDBC do MySQL
+O driver JDBC mysql-connector-j-9.3.0.jar já está incluído no projeto.
+
+➤ Para rodar corretamente:
+Vá em: File → Project Structure → Modules → Dependencies
+
+Clique em: + → JARs or directories
+
+Selecione o arquivo: mysql-connector-j-9.3.0.jar
+
+Marque como Compile e Runtime
+
+Clique em Apply e depois OK
+
+
 Edite a classe `DB.java` com suas informações:
 
 ```java
