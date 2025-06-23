@@ -1,33 +1,75 @@
 package view;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class MainFrame extends JFrame {
 
     public MainFrame() {
-        setTitle("Agência de Viagens");
-        setSize(400, 200);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setTitle("Sistema de Agência de Viagens");
+        setSize(400, 600);
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        JButton btnClientes = new JButton("Clientes");
-        JButton btnPacotes = new JButton("Pacotes");
-        JButton btnServiços = new JButton("Serviços");
-        JButton btnListar = new JButton("Listar");
-
+        // Painel principal com BoxLayout vertical
         JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40)); // margem externa
+
+        // Criação e adição dos botões
+        JButton btnClientes = criarBotao("Gerenciar Clientes", e -> new ClienteView());
+        JButton btnPacotes = criarBotao("Gerenciar Pacotes", e -> new PacoteView());
+        JButton btnServicos = criarBotao("Gerenciar Serviços", e -> new ServicoView());
+
+        JButton btnListarClientes = criarBotao("Listar Clientes", e -> new TelaListagemClientes());
+        JButton btnListarPacotes = criarBotao("Listar Pacotes", e -> new TelaListagemPacotes());
+        JButton btnListarServicos = criarBotao("Listar Serviços", e -> new TelaListagemServicos());
+
+        JButton btnConsultaPorCliente = criarBotao("Pacotes por Cliente", e -> new TelaConsultaPacotesPorCliente());
+        JButton btnConsultaPorPacote = criarBotao("Clientes por Pacote", e -> new TelaConsultaClientesPorPacote());
+
+        JButton btnContratarServicos = criarBotao("Contratar Serviços Adicionais", e -> new TelaAdicionarServicoAdicional());
+
+        // Adicionando os botões ao painel com espaço
         panel.add(btnClientes);
+        panel.add(Box.createVerticalStrut(10));
+
         panel.add(btnPacotes);
-        panel.add(btnServiços);
-        panel.add(btnListar);
+        panel.add(Box.createVerticalStrut(10));
+
+        panel.add(btnServicos);
+        panel.add(Box.createVerticalStrut(10));
+
+        panel.add(btnListarClientes);
+        panel.add(Box.createVerticalStrut(10));
+
+        panel.add(btnListarPacotes);
+        panel.add(Box.createVerticalStrut(10));
+
+        panel.add(btnListarServicos);
+        panel.add(Box.createVerticalStrut(10));
+
+        panel.add(btnConsultaPorCliente);
+        panel.add(Box.createVerticalStrut(10));
+
+        panel.add(btnConsultaPorPacote);
+        panel.add(Box.createVerticalStrut(10));
+
+        panel.add(btnContratarServicos);
+
+        // Adicionando painel à janela
         add(panel);
-
-        btnClientes.addActionListener(e -> new ClienteView());
-        btnPacotes.addActionListener(e -> new PacoteView());
-        btnServiços.addActionListener(e -> new ServicoView());
-        btnListar.addActionListener(e -> new TelaVisualizacaoDados()); // <- esse é o botão que abre a tela de visualização
-
         setVisible(true);
+    }
+
+    // Método utilitário para criar botões com alinhamento e ação
+    private JButton criarBotao(String texto, java.awt.event.ActionListener acao) {
+        JButton botao = new JButton(texto);
+        botao.setAlignmentX(Component.CENTER_ALIGNMENT);
+        botao.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        botao.setFocusable(false);
+        botao.addActionListener(acao);
+        return botao;
     }
 
     public static void main(String[] args) {

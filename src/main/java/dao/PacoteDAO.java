@@ -2,8 +2,10 @@ package dao;
 
 import model.PacoteViagem;
 import util.DB;
+import javax.swing.JOptionPane;
 import java.sql.*;
 import java.util.*;
+
 
 public class PacoteDAO {
     public void adicionar(PacoteViagem p) throws SQLException {
@@ -74,12 +76,37 @@ public class PacoteDAO {
         }
     }
 
-    //Exclusão por ID
-    public void excluir(int id) throws SQLException {
-        String sql = "DELETE FROM pacotes WHERE id = ?";
-        try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+    public boolean podeExcluirPacote(int idPacote) {
+        try (Connection conn = DB.getConnection()) {
+            String sql = "SELECT COUNT(*) FROM contratacao_servico WHERE id_pacote = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, idPacote);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) == 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public void excluir(int id) {
+        if (!podeExcluirPacote(id)) {
+            JOptionPane.showMessageDialog(null, "Este pacote está associado a clientes e não pode ser excluído.");
+            return;
+        }
+
+        try (Connection conn = DB.getConnection()) {
+            String sql = "DELETE FROM pacote_viagem WHERE id = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, id);
             stmt.executeUpdate();
+            JOptionPane.showMessageDialog(null, "Pacote excluído com sucesso!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Erro ao excluir pacote.");
         }
     }
+
 }

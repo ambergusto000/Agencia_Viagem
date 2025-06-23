@@ -10,49 +10,86 @@ import java.sql.SQLException;
 public class ClienteView extends JFrame {
     public ClienteView() {
         setTitle("Cadastro de Clientes");
-        setSize(400, 350);
+        setSize(400, 400);
         setLayout(new GridLayout(10, 2));
         setLocationRelativeTo(null);
 
-        JTextField txtId = new JTextField(); // Campo para busca/exclusão
+        // Campos de entrada
+        JTextField txtId = new JTextField();
         JTextField txtNome = new JTextField();
-        JTextField txtTipo = new JTextField();
-        JTextField txtCpf = new JTextField();
-        JTextField txtPassaporte = new JTextField();
+        String[] tipos = {"Nacional", "Estrangeiro"};
+        JComboBox<String> comboTipoCliente = new JComboBox<>(tipos);
+        JTextField txtDocumento = new JTextField(); // campo único para CPF ou Passaporte
         JTextField txtTelefone = new JTextField();
         JTextField txtEmail = new JTextField();
+
+        // Botões
         JButton btnSalvar = new JButton("Salvar");
         JButton btnBuscar = new JButton("Buscar por ID");
         JButton btnExcluir = new JButton("Excluir por ID");
 
+        // Adicionando os componentes ao layout
         add(new JLabel("ID (para busca/exclusão):")); add(txtId);
         add(new JLabel("Nome:")); add(txtNome);
-        add(new JLabel("Tipo (nacional/estrangeiro):")); add(txtTipo);
-        add(new JLabel("CPF:")); add(txtCpf);
-        add(new JLabel("Passaporte:")); add(txtPassaporte);
+        add(new JLabel("Tipo (Nacional/Estrangeiro):")); add(comboTipoCliente);
+        add(new JLabel("CPF ou Passaporte:")); add(txtDocumento);
         add(new JLabel("Telefone:")); add(txtTelefone);
         add(new JLabel("Email:")); add(txtEmail);
         add(new JLabel()); add(btnSalvar);
         add(new JLabel()); add(btnBuscar);
         add(new JLabel()); add(btnExcluir);
 
+        // Ação do botão Salvar com validações
         btnSalvar.addActionListener(e -> {
+            String nome = txtNome.getText();
+            String email = txtEmail.getText();
+            String documento = txtDocumento.getText();
+            String tipoCliente = (String) comboTipoCliente.getSelectedItem();
+
+            if (!camposObrigatoriosPreenchidos(nome, email)) {
+                JOptionPane.showMessageDialog(this, "Preencha todos os campos obrigatórios.");
+                return;
+            }
+
+            if (!isEmailValido(email)) {
+                JOptionPane.showMessageDialog(this, "E-mail inválido.");
+                return;
+            }
+
+            if ("Nacional".equalsIgnoreCase(tipoCliente) && !isCpfValido(documento)) {
+                JOptionPane.showMessageDialog(this, "CPF inválido. Deve conter 11 dígitos numéricos.");
+                return;
+            }
+
+            if ("Estrangeiro".equalsIgnoreCase(tipoCliente) && !isPassaporteValido(documento)) {
+                JOptionPane.showMessageDialog(this, "Passaporte inválido. Deve conter de 6 a 9 caracteres alfanuméricos.");
+                return;
+            }
+
             Cliente c = new Cliente();
-            c.setNome(txtNome.getText());
-            c.setTipo(txtTipo.getText());
-            c.setCpf(txtCpf.getText());
-            c.setPassaporte(txtPassaporte.getText());
+            c.setNome(nome);
+            c.setEmail(email);
+            c.setTipo(tipoCliente);
             c.setTelefone(txtTelefone.getText());
-            c.setEmail(txtEmail.getText());
+
+            if ("Nacional".equalsIgnoreCase(tipoCliente)) {
+                c.setCpf(documento);
+                c.setPassaporte("");
+            } else {
+                c.setCpf("");
+                c.setPassaporte(documento);
+            }
+
             try {
                 new ClienteDAO().adicionar(c);
-                JOptionPane.showMessageDialog(this, "Cliente cadastrado!");
+                JOptionPane.showMessageDialog(this, "Cliente cadastrado com sucesso!");
             } catch (SQLException ex) {
                 ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Erro ao salvar cliente.");
+                JOptionPane.showMessageDialog(this, "Erro ao salvar cliente: " + ex.getMessage());
             }
         });
 
+        // Ação do botão Buscar
         btnBuscar.addActionListener(e -> {
             try {
                 int id = Integer.parseInt(txtId.getText());
@@ -60,9 +97,8 @@ public class ClienteView extends JFrame {
                 Cliente c = dao.buscarPorId(id);
                 if (c != null) {
                     txtNome.setText(c.getNome());
-                    txtTipo.setText(c.getTipo());
-                    txtCpf.setText(c.getCpf());
-                    txtPassaporte.setText(c.getPassaporte());
+                    comboTipoCliente.setSelectedItem(c.getTipo());
+                    txtDocumento.setText("Nacional".equalsIgnoreCase(c.getTipo()) ? c.getCpf() : c.getPassaporte());
                     txtTelefone.setText(c.getTelefone());
                     txtEmail.setText(c.getEmail());
                     JOptionPane.showMessageDialog(this, "Cliente encontrado!");
@@ -76,6 +112,7 @@ public class ClienteView extends JFrame {
             }
         });
 
+        // Ação do botão Excluir
         btnExcluir.addActionListener(e -> {
             try {
                 int id = Integer.parseInt(txtId.getText());
@@ -83,9 +120,7 @@ public class ClienteView extends JFrame {
                 dao.excluir(id);
                 JOptionPane.showMessageDialog(this, "Cliente excluído com sucesso!");
                 txtNome.setText("");
-                txtTipo.setText("");
-                txtCpf.setText("");
-                txtPassaporte.setText("");
+                txtDocumento.setText("");
                 txtTelefone.setText("");
                 txtEmail.setText("");
             } catch (SQLException ex) {
@@ -96,5 +131,23 @@ public class ClienteView extends JFrame {
         });
 
         setVisible(true);
+    }
+
+    // Validações auxiliares
+    private boolean isCpfValido(String cpf) {
+        return cpf.matches("\\d{11}");
+    }
+
+    private boolean isPassaporteValido(String passaporte) {
+        return passaporte.matches("[A-Za-z0-9]{6,9}");
+    }
+
+    private boolean isEmailValido(String email) {
+        return email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+    }
+
+
+    private boolean camposObrigatoriosPreenchidos(String nome, String email) {
+        return !nome.trim().isEmpty() && !email.trim().isEmpty();
     }
 }

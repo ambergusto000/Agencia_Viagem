@@ -77,13 +77,9 @@ public class TelaVisualizacaoDados extends JFrame {
         // Adicionando botão para contratar serviços
         JButton btnContratarServico = new JButton("Contratar Serviço");
         btnContratarServico.addActionListener(e -> {
-            try {
-                Connection conn = DB.getConnection();
-                new TelaContratarServico(conn);
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, "Erro ao abrir tela de contratação: " + ex.getMessage());
-            }
+            new TelaContratarServico();
         });
+
 
         // Painel para os botões globais
         JPanel painelBotoes = new JPanel();
@@ -192,13 +188,9 @@ public class TelaVisualizacaoDados extends JFrame {
         int linhaSelecionada = tabelaPacotes.getSelectedRow();
         if (linhaSelecionada >= 0) {
             int id = (int) tabelaPacotes.getValueAt(linhaSelecionada, 0);
-            try {
-                new PacoteDAO().excluir(id);
-                carregarPacotes(); // Recarrega a tabela
-                JOptionPane.showMessageDialog(this, "Pacote excluído com sucesso!");
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, "Erro ao excluir pacote: " + ex.getMessage());
-            }
+            new PacoteDAO().excluir(id);
+            carregarPacotes(); // Recarrega a tabela
+            JOptionPane.showMessageDialog(this, "Pacote excluído com sucesso!");
         } else {
             JOptionPane.showMessageDialog(this, "Selecione um pacote para excluir.");
         }

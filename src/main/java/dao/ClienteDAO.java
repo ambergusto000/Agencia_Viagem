@@ -8,65 +8,60 @@ import java.util.*;
 
 public class ClienteDAO {
 
-    public void adicionar(Cliente c) throws SQLException {
+    // Inserir novo cliente
+    public void adicionar(Cliente cliente) throws SQLException {
         String sql = "INSERT INTO clientes (nome, tipo, cpf, passaporte, telefone, email) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, c.getNome());
-            stmt.setString(2, c.getTipo());
-            if (c.getCpf() == null || c.getCpf().isBlank()) {
-                stmt.setNull(3, Types.VARCHAR);
-            } else {
-                stmt.setString(3, c.getCpf());
-            }
-            if (c.getPassaporte() == null || c.getPassaporte().isBlank()) {
-                stmt.setNull(4, Types.VARCHAR);
-            } else {
-                stmt.setString(4, c.getPassaporte());
-            }
-            stmt.setString(5, c.getTelefone());
-            stmt.setString(6, c.getEmail());
+        try (Connection conn = DB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, cliente.getNome());
+            stmt.setString(2, cliente.getTipo());
+            stmt.setString(3, cliente.getCpf());
+            stmt.setString(4, cliente.getPassaporte());
+            stmt.setString(5, cliente.getTelefone());
+            stmt.setString(6, cliente.getEmail());
             stmt.executeUpdate();
         }
     }
 
-    public Map<Cliente, List<String>> listarClientesComPacotes() throws SQLException {
-        String sql = "SELECT c.id, c.nome, c.tipo, c.cpf, c.passaporte, c.telefone, c.email, p.nome AS pacote " +
-                "FROM clientes c " +
-                "LEFT JOIN contratos ct ON c.id = ct.cliente_id " +
-                "LEFT JOIN pacotes p ON ct.pacote_id = p.id";
-        Map<Integer, Cliente> clientesMap = new HashMap<>();
-        Map<Cliente, List<String>> resultado = new HashMap<>();
-        try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+    // Buscar cliente por ID
+    public Cliente buscarPorId(int id) throws SQLException {
+        String sql = "SELECT * FROM clientes WHERE id = ?";
+        try (Connection conn = DB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                Cliente cliente = clientesMap.get(id);
-                if (cliente == null) {
-                    cliente = new Cliente();
-                    cliente.setId(id);
-                    cliente.setNome(rs.getString("nome"));
-                    cliente.setTipo(rs.getString("tipo"));
-                    cliente.setCpf(rs.getString("cpf"));
-                    cliente.setPassaporte(rs.getString("passaporte"));
-                    cliente.setTelefone(rs.getString("telefone"));
-                    cliente.setEmail(rs.getString("email"));
-                    clientesMap.put(id, cliente);
-                    resultado.put(cliente, new ArrayList<>());
-                }
-                String pacote = rs.getString("pacote");
-                if (pacote != null) {
-                    resultado.get(cliente).add(pacote);
-                }
+            if (rs.next()) {
+                Cliente c = new Cliente();
+                c.setId(rs.getInt("id"));
+                c.setNome(rs.getString("nome"));
+                c.setTipo(rs.getString("tipo"));
+                c.setCpf(rs.getString("cpf"));
+                c.setPassaporte(rs.getString("passaporte"));
+                c.setTelefone(rs.getString("telefone"));
+                c.setEmail(rs.getString("email"));
+                return c;
             }
         }
-        return resultado;
+        return null;
     }
 
-    public List<Cliente> listarTodos() throws SQLException {
+    // Excluir cliente por ID
+    public void excluir(int id) throws SQLException {
+        String sql = "DELETE FROM clientes WHERE id = ?";
+        try (Connection conn = DB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        }
+    }
+
+    // Listar todos os clientes
+    public List<Cliente> listar() throws SQLException {
         List<Cliente> lista = new ArrayList<>();
         String sql = "SELECT * FROM clientes";
-        try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            ResultSet rs = stmt.executeQuery();
+        try (Connection conn = DB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 Cliente c = new Cliente();
                 c.setId(rs.getInt("id"));
@@ -82,33 +77,50 @@ public class ClienteDAO {
         return lista;
     }
 
-    //Busca por ID
-    public Cliente buscarPorId(int id) throws SQLException {
-        String sql = "SELECT * FROM clientes WHERE id = ?";
-        try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                Cliente c = new Cliente();
-                c.setId(rs.getInt("id"));
-                c.setNome(rs.getString("nome"));
-                c.setTipo(rs.getString("tipo"));
-                c.setCpf(rs.getString("cpf"));
-                c.setPassaporte(rs.getString("passaporte"));
-                c.setTelefone(rs.getString("telefone"));
-                c.setEmail(rs.getString("email"));
-                return c;
-            }
-            return null;
-        }
-    }
+    // Listar clientes com pacotes contratados
+    public Map<Cliente, List<String>> listarClientesComPacotes() {
+        Map<Cliente, List<String>> resultado = new HashMap<>();
+        String sql = "SELECT cl.id, cl.nome, cl.tipo, cl.telefone, cl.email, p.destino " +
+                "FROM clientes cl " +
+                "JOIN contratacao_servico cs ON cl.id = cs.id_cliente " +
+                "JOIN pacote_viagem p ON p.id = cs.id_pacote";
 
-    //Exclusão por ID
-    public void excluir(int id) throws SQLException {
-        String sql = "DELETE FROM clientes WHERE id = ?";
-        try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
+        try (Connection conn = DB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String nome = rs.getString("nome");
+                String tipo = rs.getString("tipo");
+                String telefone = rs.getString("telefone");
+                String email = rs.getString("email");
+                String destinoPacote = rs.getString("destino");
+
+                Cliente clienteTemp = new Cliente(nome, email, "", tipo);
+                clienteTemp.setId(id);
+                clienteTemp.setTelefone(telefone);
+
+                Cliente existente = null;
+                for (Cliente c : resultado.keySet()) {
+                    if (c.getId() == id) {
+                        existente = c;
+                        break;
+                    }
+                }
+
+                if (existente != null) {
+                    resultado.get(existente).add(destinoPacote);
+                } else {
+                    List<String> pacotes = new ArrayList<>();
+                    pacotes.add(destinoPacote);
+                    resultado.put(clienteTemp, pacotes);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+        return resultado;
     }
 }
