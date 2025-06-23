@@ -1,6 +1,12 @@
 # 🌍 Sistema de Agência de Viagens 
 
 Este projeto implementa um sistema completo para gerenciamento de uma agência de viagens, com interface gráfica desenvolvida em **Java Swing** e integração com banco de dados **MySQL**
+---
+Integrantes:
+
+Augusto Ramos - 22401009
+Paulo Sérgio - 22409324
+Rodrigo Passos - 22405821
 
 ---
 
