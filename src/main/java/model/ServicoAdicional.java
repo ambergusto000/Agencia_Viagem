@@ -18,6 +18,6 @@ public class ServicoAdicional {
 
     @Override
     public String toString() {
-        return nome; // Exibe o nome do serviço no JComboBox
+        return nome;
     }
 }

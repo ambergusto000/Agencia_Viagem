@@ -11,10 +11,7 @@ public class Cliente {
     private String telefone;
     private String email;
 
-    // Construtor padrão
-    public Cliente() {}
 
-    // Construtor completo (útil para carregar dados rapidamente)
     public Cliente(String nome, String email, String documento, String tipo) {
         this.nome = nome;
         this.email = email;
@@ -86,13 +83,13 @@ public class Cliente {
         this.email = email;
     }
 
-    // toString (usado nos JComboBox e exibição)
+    // toString
     @Override
     public String toString() {
         return nome; // ou return nome + " - " + email;
     }
 
-    // equals e hashCode (para funcionar em Map, Set, etc.)
+    // equals e hashCode
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
