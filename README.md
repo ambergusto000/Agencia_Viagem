@@ -78,3 +78,9 @@ Edite a classe `DB.java` com suas informações:
 ```java
 private static final String USER = "seu_usuario";
 private static final String PASSWORD = "sua_senha";
+```
+
+
+### 3. Execute o programa
+
+Clique no Main e execute o programa
