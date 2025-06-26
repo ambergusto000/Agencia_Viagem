@@ -5,50 +5,89 @@ import model.ServicoAdicional;
 
 import javax.swing.*;
 import java.awt.*;
-import java.sql.SQLException;
 
 public class ServicoView extends JFrame {
     public ServicoView() {
         setTitle("Cadastro de Serviços");
-        setSize(400, 300);
-        setLayout(new GridLayout(6, 2));
+        setSize(500, 300);
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        JTextField txtId = new JTextField(); // Campo para busca/exclusão
-        JTextField txtNome = new JTextField();
-        JTextField txtDescricao = new JTextField();
-        JTextField txtPreco = new JTextField();
+        // Painel principal
+        JPanel painel = new JPanel(new BorderLayout(10, 10));
+        painel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Painel de formulário
+        JPanel form = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        // Campos
+        JTextField txtId = new JTextField(10);
+        JTextField txtNome = new JTextField(20);
+        JTextField txtDescricao = new JTextField(20);
+        JTextField txtPreco = new JTextField(10);
+
+        int y = 0;
+        gbc.gridx = 0; gbc.gridy = y;
+        form.add(new JLabel("ID (para busca/exclusão):"), gbc);
+        gbc.gridx = 1;
+        form.add(txtId, gbc);
+
+        y++;
+        gbc.gridx = 0; gbc.gridy = y;
+        form.add(new JLabel("Nome:"), gbc);
+        gbc.gridx = 1;
+        form.add(txtNome, gbc);
+
+        y++;
+        gbc.gridx = 0; gbc.gridy = y;
+        form.add(new JLabel("Descrição:"), gbc);
+        gbc.gridx = 1;
+        form.add(txtDescricao, gbc);
+
+        y++;
+        gbc.gridx = 0; gbc.gridy = y;
+        form.add(new JLabel("Preço:"), gbc);
+        gbc.gridx = 1;
+        form.add(txtPreco, gbc);
+
+        painel.add(form, BorderLayout.CENTER);
+
+        // Botões
+        JPanel botoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         JButton btnSalvar = new JButton("Salvar");
         JButton btnBuscar = new JButton("Buscar por ID");
         JButton btnExcluir = new JButton("Excluir por ID");
 
-        add(new JLabel("ID (para busca/exclusão):")); add(txtId);
-        add(new JLabel("Nome:")); add(txtNome);
-        add(new JLabel("Descrição:")); add(txtDescricao);
-        add(new JLabel("Preço:")); add(txtPreco);
-        add(new JLabel()); add(btnSalvar);
-        add(new JLabel()); add(btnBuscar);
-        add(new JLabel()); add(btnExcluir);
+        botoes.add(btnSalvar);
+        botoes.add(btnBuscar);
+        botoes.add(btnExcluir);
+        painel.add(botoes, BorderLayout.SOUTH);
 
+        add(painel);
+        setVisible(true);
+
+        // Ações
         btnSalvar.addActionListener(e -> {
-            ServicoAdicional s = new ServicoAdicional();
-            s.setNome(txtNome.getText());
-            s.setDescricao(txtDescricao.getText());
-            s.setPreco(Double.parseDouble(txtPreco.getText()));
             try {
+                ServicoAdicional s = new ServicoAdicional();
+                s.setNome(txtNome.getText());
+                s.setDescricao(txtDescricao.getText());
+                s.setPreco(Double.parseDouble(txtPreco.getText()));
+
                 new ServicoDAO().adicionar(s);
-                JOptionPane.showMessageDialog(this, "Serviço cadastrado!");
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Erro ao salvar serviço.");
+                JOptionPane.showMessageDialog(this, "Serviço cadastrado com sucesso!");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Erro ao salvar serviço: " + ex.getMessage());
             }
         });
 
         btnBuscar.addActionListener(e -> {
             try {
                 int id = Integer.parseInt(txtId.getText());
-                ServicoDAO dao = new ServicoDAO();
-                ServicoAdicional s = dao.buscarPorId(id);
+                ServicoAdicional s = new ServicoDAO().buscarPorId(id);
                 if (s != null) {
                     txtNome.setText(s.getNome());
                     txtDescricao.setText(s.getDescricao());
@@ -57,29 +96,19 @@ public class ServicoView extends JFrame {
                 } else {
                     JOptionPane.showMessageDialog(this, "Serviço não encontrado.");
                 }
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, "Erro ao buscar serviço: " + ex.getMessage());
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Digite um ID válido.");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Erro: " + ex.getMessage());
             }
         });
 
         btnExcluir.addActionListener(e -> {
             try {
                 int id = Integer.parseInt(txtId.getText());
-                ServicoDAO dao = new ServicoDAO();
-                dao.excluir(id);
+                new ServicoDAO().excluir(id);
                 JOptionPane.showMessageDialog(this, "Serviço excluído com sucesso!");
-                txtNome.setText("");
-                txtDescricao.setText("");
-                txtPreco.setText("");
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, "Erro ao excluir serviço: " + ex.getMessage());
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Digite um ID válido.");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Erro ao excluir: " + ex.getMessage());
             }
         });
-
-        setVisible(true);
     }
 }

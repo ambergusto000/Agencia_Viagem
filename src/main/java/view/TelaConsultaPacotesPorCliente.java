@@ -7,70 +7,79 @@ import model.PacoteViagem;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.sql.SQLException;
 import java.util.List;
 
 public class TelaConsultaPacotesPorCliente extends JFrame {
+
     private JComboBox<Cliente> comboClientes;
     private JTextArea areaResultado;
 
-    public TelaConsultaPacotesPorCliente() {
+    public TelaConsultaPacotesPorCliente() throws SQLException {
         setTitle("Consulta de Pacotes por Cliente");
-        setSize(400, 300);
-        setLayout(new BorderLayout());
+        setSize(600, 400);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
 
+        JLabel lbl = new JLabel("Selecione o cliente:");
         comboClientes = new JComboBox<>();
-        carregarClientes();
-
         JButton btnBuscar = new JButton("Buscar Pacotes");
         areaResultado = new JTextArea();
         areaResultado.setEditable(false);
+        areaResultado.setLineWrap(true);
+        areaResultado.setWrapStyleWord(true);
+        JScrollPane scroll = new JScrollPane(areaResultado);
 
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.add(new JLabel("Selecione o cliente:"), BorderLayout.NORTH);
-        topPanel.add(comboClientes, BorderLayout.CENTER);
-        topPanel.add(btnBuscar, BorderLayout.EAST);
+        carregarClientes();
 
-        add(topPanel, BorderLayout.NORTH);
-        add(new JScrollPane(areaResultado), BorderLayout.CENTER);
+        // Layout organizado
+        gbc.insets = new Insets(10, 10, 5, 10);
+        gbc.gridx = 0; gbc.gridy = 0; gbc.anchor = GridBagConstraints.WEST;
+        add(lbl, gbc);
 
-        btnBuscar.addActionListener(e -> {
+        gbc.gridx = 1; gbc.gridy = 0; gbc.fill = GridBagConstraints.HORIZONTAL; gbc.weightx = 1.0;
+        add(comboClientes, gbc);
+
+        gbc.gridx = 2; gbc.gridy = 0; gbc.fill = GridBagConstraints.NONE; gbc.weightx = 0;
+        add(btnBuscar, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 3;
+        gbc.insets = new Insets(10, 10, 10, 10); gbc.fill = GridBagConstraints.BOTH; gbc.weighty = 1.0;
+        add(scroll, gbc);
+
+        btnBuscar.addActionListener((ActionEvent e) -> {
+            Cliente cliente = (Cliente) comboClientes.getSelectedItem();
+            if (cliente == null) return;
+
             try {
-                Cliente cliente = (Cliente) comboClientes.getSelectedItem();
-                if (cliente == null) return;
-
                 ContratacaoServicoDAO dao = new ContratacaoServicoDAO();
                 List<PacoteViagem> pacotes = dao.listarPacotesPorCliente(cliente.getId());
-
                 StringBuilder sb = new StringBuilder();
+
                 for (PacoteViagem p : pacotes) {
-                    sb.append("Destino: ").append(p.getDestino())
-                            .append(" | Preço: R$").append(p.getPreco());
-
-                    List<String> servicos = dao.listarServicosPorClienteEPacote(cliente.getId(), p.getId());
-                    if (!servicos.isEmpty()) {
-                        sb.append(" | Serviços: ").append(String.join(", ", servicos));
-                    }
-
-                    sb.append("\n");
+                    List<String> servicos = dao.listarServicosPorContrato(cliente.getId(), p.getId());
+                    sb.append("🗺 Destino: ").append(p.getDestino())
+                            .append(" | 💰 Preço: R$").append(p.getPreco())
+                            .append("\n   Serviços: ").append(String.join(", ", servicos)).append("\n\n");
                 }
 
-                areaResultado.setText(sb.length() > 0 ? sb.toString() : "Nenhum pacote contratado.");
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Erro ao buscar pacotes: " + ex.getMessage());
+                areaResultado.setText(sb.length() > 0 ? sb.toString() : "Este cliente não contratou nenhum pacote.");
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Erro: " + ex.getMessage());
             }
         });
 
         setVisible(true);
     }
 
-    private void carregarClientes() {
+    private void carregarClientes() throws SQLException {
         ClienteDAO dao = new ClienteDAO();
-        try {
-            List<Cliente> clientes = dao.listar();
-            for (Cliente c : clientes) comboClientes.addItem(c);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Erro ao carregar clientes: " + e.getMessage());
+        List<Cliente> clientes = dao.listar();
+        for (Cliente c : clientes) {
+            comboClientes.addItem(c);
         }
     }
 }

@@ -6,8 +6,8 @@ import javax.swing.JOptionPane;
 import java.sql.*;
 import java.util.*;
 
-
 public class PacoteDAO {
+
     public void adicionar(PacoteViagem p) throws SQLException {
         String sql = "INSERT INTO pacotes (nome, destino, duracao, preco, tipo) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -39,24 +39,9 @@ public class PacoteDAO {
     }
 
     public List<PacoteViagem> listarTodos() throws SQLException {
-        List<PacoteViagem> lista = new ArrayList<>();
-        String sql = "SELECT * FROM pacotes";
-        try (Connection conn = DB.getConnection(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                PacoteViagem p = new PacoteViagem();
-                p.setId(rs.getInt("id"));
-                p.setNome(rs.getString("nome"));
-                p.setDestino(rs.getString("destino"));
-                p.setDuracao(rs.getInt("duracao"));
-                p.setPreco(rs.getDouble("preco"));
-                p.setTipo(rs.getString("tipo"));
-                lista.add(p);
-            }
-        }
-        return lista;
+        return listar(); // reaproveita o método acima
     }
 
-    //Busca por ID
     public PacoteViagem buscarPorId(int id) throws SQLException {
         String sql = "SELECT * FROM pacotes WHERE id = ?";
         try (Connection conn = DB.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -78,7 +63,7 @@ public class PacoteDAO {
 
     public boolean podeExcluirPacote(int idPacote) {
         try (Connection conn = DB.getConnection()) {
-            String sql = "SELECT COUNT(*) FROM contratacao_servico WHERE id_pacote = ?";
+            String sql = "SELECT COUNT(*) FROM contratos WHERE pacote_id = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, idPacote);
             ResultSet rs = stmt.executeQuery();
@@ -98,7 +83,7 @@ public class PacoteDAO {
         }
 
         try (Connection conn = DB.getConnection()) {
-            String sql = "DELETE FROM pacote_viagem WHERE id = ?";
+            String sql = "DELETE FROM pacotes WHERE id = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, id);
             stmt.executeUpdate();
@@ -108,5 +93,4 @@ public class PacoteDAO {
             JOptionPane.showMessageDialog(null, "Erro ao excluir pacote.");
         }
     }
-
 }

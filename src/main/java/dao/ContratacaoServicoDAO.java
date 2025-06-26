@@ -2,7 +2,6 @@ package dao;
 
 import model.Cliente;
 import model.PacoteViagem;
-import model.ContratacaoServico;
 import util.DB;
 
 import java.sql.*;
@@ -14,10 +13,8 @@ public class ContratacaoServicoDAO {
     // Contrata um serviço adicional para um cliente e pacote
     public void adicionarServicoAdicional(int idCliente, int idPacote, int idServico) {
         try (Connection conn = DB.getConnection()) {
-            // Primeiro, cria (ou busca) um contrato
             int contratoId = obterOuCriarContrato(conn, idCliente, idPacote);
 
-            // Depois, adiciona o serviço ao contrato
             String sql = "INSERT INTO contrato_servico (contrato_id, servico_id) VALUES (?, ?)";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setInt(1, contratoId);
@@ -104,8 +101,9 @@ public class ContratacaoServicoDAO {
         }
         return clientes;
     }
+
     // Lista os serviços contratados por um cliente em um pacote específico
-    public List<String> listarServicosPorClienteEPacote(int idCliente, int idPacote) throws SQLException {
+    public List<String> listarServicosPorContrato(int idCliente, int idPacote) throws SQLException {
         List<String> servicos = new ArrayList<>();
         String sql = "SELECT s.nome " +
                 "FROM contrato_servico cs " +
@@ -123,5 +121,4 @@ public class ContratacaoServicoDAO {
         }
         return servicos;
     }
-
 }

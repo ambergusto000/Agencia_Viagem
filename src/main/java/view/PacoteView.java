@@ -5,66 +5,99 @@ import model.PacoteViagem;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
 
 public class PacoteView extends JFrame {
-    private JTextField txtId, txtNome, txtDestino, txtDuracao, txtPreco, txtTipo;
-    private JButton btnSalvar, btnBuscar, btnExcluir;
-
     public PacoteView() {
         setTitle("Cadastro de Pacotes");
-        setSize(400, 400);
-        setLayout(new GridLayout(8, 2));
+        setSize(500, 350);
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        txtId = new JTextField();
-        txtNome = new JTextField();
-        txtDestino = new JTextField();
-        txtDuracao = new JTextField();
-        txtPreco = new JTextField();
-        txtTipo = new JTextField();
+        // Painel principal com margem
+        JPanel painel = new JPanel(new BorderLayout(10, 10));
+        painel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        btnSalvar = new JButton("Salvar");
-        btnBuscar = new JButton("Buscar por ID");
-        btnExcluir = new JButton("Excluir por ID");
+        // Painel de formulário
+        JPanel form = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        add(new JLabel("ID (para busca/exclusão):")); add(txtId);
-        add(new JLabel("Nome:")); add(txtNome);
-        add(new JLabel("Destino:")); add(txtDestino);
-        add(new JLabel("Duração (dias):")); add(txtDuracao);
-        add(new JLabel("Preço:")); add(txtPreco);
-        add(new JLabel("Tipo:")); add(txtTipo);
-        add(new JLabel()); add(btnSalvar);
-        add(new JLabel()); add(btnBuscar);
-        add(new JLabel()); add(btnExcluir);
+        // Campos
+        JTextField txtId = new JTextField(10);
+        JTextField txtNome = new JTextField(20);
+        JTextField txtDestino = new JTextField(20);
+        JTextField txtDuracao = new JTextField(10);
+        JTextField txtPreco = new JTextField(10);
+        JTextField txtTipo = new JTextField(15);
 
+        // Adicionando os campos com labels
+        int y = 0;
+
+        gbc.gridx = 0; gbc.gridy = y;
+        form.add(new JLabel("ID (para busca/exclusão):"), gbc);
+        gbc.gridx = 1;
+        form.add(txtId, gbc);
+
+        y++;
+        gbc.gridx = 0; gbc.gridy = y;
+        form.add(new JLabel("Nome:"), gbc);
+        gbc.gridx = 1;
+        form.add(txtNome, gbc);
+
+        y++;
+        gbc.gridx = 0; gbc.gridy = y;
+        form.add(new JLabel("Destino:"), gbc);
+        gbc.gridx = 1;
+        form.add(txtDestino, gbc);
+
+        y++;
+        gbc.gridx = 0; gbc.gridy = y;
+        form.add(new JLabel("Duração (dias):"), gbc);
+        gbc.gridx = 1;
+        form.add(txtDuracao, gbc);
+
+        y++;
+        gbc.gridx = 0; gbc.gridy = y;
+        form.add(new JLabel("Preço:"), gbc);
+        gbc.gridx = 1;
+        form.add(txtPreco, gbc);
+
+        y++;
+        gbc.gridx = 0; gbc.gridy = y;
+        form.add(new JLabel("Tipo:"), gbc);
+        gbc.gridx = 1;
+        form.add(txtTipo, gbc);
+
+        painel.add(form, BorderLayout.CENTER);
+
+        // Painel de botões
+        JPanel botoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        JButton btnSalvar = new JButton("Salvar");
+        JButton btnBuscar = new JButton("Buscar por ID");
+        JButton btnExcluir = new JButton("Excluir por ID");
+
+        botoes.add(btnSalvar);
+        botoes.add(btnBuscar);
+        botoes.add(btnExcluir);
+
+        painel.add(botoes, BorderLayout.SOUTH);
+
+        add(painel);
+        setVisible(true);
+
+        // Ações
         btnSalvar.addActionListener(e -> {
-            String nome = txtNome.getText();
-            String destino = txtDestino.getText();
-            String duracaoStr = txtDuracao.getText();
-            String precoStr = txtPreco.getText();
-            String tipo = txtTipo.getText();
-
-            if (nome.isEmpty() || destino.isEmpty() || duracaoStr.isEmpty() || precoStr.isEmpty() || tipo.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Todos os campos são obrigatórios.");
-                return;
-            }
-
             try {
-                int duracao = Integer.parseInt(duracaoStr);
-                double preco = Double.parseDouble(precoStr);
-
                 PacoteViagem p = new PacoteViagem();
-                p.setNome(nome);
-                p.setDestino(destino);
-                p.setDuracao(duracao);
-                p.setPreco(preco);
-                p.setTipo(tipo);
+                p.setNome(txtNome.getText());
+                p.setDestino(txtDestino.getText());
+                p.setDuracao(Integer.parseInt(txtDuracao.getText()));
+                p.setPreco(Double.parseDouble(txtPreco.getText()));
+                p.setTipo(txtTipo.getText());
 
                 new PacoteDAO().adicionar(p);
-                JOptionPane.showMessageDialog(this, "Pacote salvo com sucesso!");
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Duração deve ser número inteiro e preço deve ser decimal.");
+                JOptionPane.showMessageDialog(this, "Pacote cadastrado com sucesso!");
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Erro ao salvar pacote: " + ex.getMessage());
             }
@@ -80,14 +113,12 @@ public class PacoteView extends JFrame {
                     txtDuracao.setText(String.valueOf(p.getDuracao()));
                     txtPreco.setText(String.valueOf(p.getPreco()));
                     txtTipo.setText(p.getTipo());
-                    JOptionPane.showMessageDialog(this, "Pacote encontrado.");
+                    JOptionPane.showMessageDialog(this, "Pacote encontrado!");
                 } else {
                     JOptionPane.showMessageDialog(this, "Pacote não encontrado.");
                 }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Digite um ID válido.");
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Erro ao buscar pacote: " + ex.getMessage());
+                JOptionPane.showMessageDialog(this, "Erro: " + ex.getMessage());
             }
         });
 
@@ -95,21 +126,9 @@ public class PacoteView extends JFrame {
             try {
                 int id = Integer.parseInt(txtId.getText());
                 new PacoteDAO().excluir(id);
-                JOptionPane.showMessageDialog(this, "Pacote excluído com sucesso!");
-
-                txtNome.setText("");
-                txtDestino.setText("");
-                txtDuracao.setText("");
-                txtPreco.setText("");
-                txtTipo.setText("");
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Digite um ID válido.");
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Erro ao excluir pacote: " + ex.getMessage());
+                JOptionPane.showMessageDialog(this, "Erro ao excluir: " + ex.getMessage());
             }
         });
-
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setVisible(true);
     }
 }

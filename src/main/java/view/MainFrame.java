@@ -2,6 +2,7 @@ package view;
 
 import javax.swing.*;
 import java.awt.*;
+import java.sql.SQLException;
 
 public class MainFrame extends JFrame {
 
@@ -25,8 +26,20 @@ public class MainFrame extends JFrame {
         JButton btnListarPacotes = criarBotao("Listar Pacotes", e -> new TelaListagemPacotes());
         JButton btnListarServicos = criarBotao("Listar Serviços", e -> new TelaListagemServicos());
 
-        JButton btnConsultaPorCliente = criarBotao("Pacotes por Cliente", e -> new TelaConsultaPacotesPorCliente());
-        JButton btnConsultaPorPacote = criarBotao("Clientes por Pacote", e -> new TelaConsultaClientesPorPacote());
+        JButton btnConsultaPorCliente = criarBotao("Pacotes por Cliente", e -> {
+            try {
+                new TelaConsultaPacotesPorCliente();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        JButton btnConsultaPorPacote = criarBotao("Clientes por Pacote", e -> {
+            try {
+                new TelaConsultaClientesPorPacote();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
 
         JButton btnContratarServicos = criarBotao("Contratar Serviços Adicionais", e -> new TelaAdicionarServicoAdicional());
 
