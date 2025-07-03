@@ -4,11 +4,11 @@ Este projeto implementa um sistema completo para gerenciamento de uma agência d
 ---
 Integrantes:
 
-Augusto Ramos - 22401009
+Augusto Ramos 
 
-Paulo Sérgio - 22409324
+Paulo Sérgio 
 
-Rodrigo Passos - 22405821
+Rodrigo Passos 
 
 ---
 
